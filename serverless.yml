@@ -1,0 +1,18 @@
+service: wallcity
+plugins:
+  - serverless-finch
+frameworkVersion: ">=2.24.0"
+
+provider:
+  name: aws
+  profile: tischtennis
+  region: us-east-1
+
+
+custom:
+  s3Bucket: wallcity
+  client:
+    bucketName: ${self:custom.s3Bucket}
+    distributionFolder: src
+    #keyPrefix: static
+    

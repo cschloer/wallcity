@@ -1,0 +1,15 @@
+body {
+  background-color: black;
+  min-height: 100vh;
+}
+.main-image img {
+  max-height: 35rem;
+}
+
+.wall-city-logo-horizontal img {
+  max-width: 15rem;
+}
+
+.wall-city-logo-vertical img {
+  max-height: 35rem;
+}

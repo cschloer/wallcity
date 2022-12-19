@@ -37,10 +37,15 @@ html {
 .image-gallery-bar {
   font-size: 1.25rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  background-color: #dcdcdc17;
+  /*background-color: #dcdcdc17;*/
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.image-gallery-bar .column {
+  flex: 1 1 auto;
 }
 @media screen and (min-width: 1408px) {
   .columns-is-fullhd {
@@ -74,4 +79,8 @@ html {
 .awn-toast {
   font-size: 1.25rem;
   width: 350px;
+}
+
+.w-100 {
+  width: 100% !important;
 }

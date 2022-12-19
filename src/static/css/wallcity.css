@@ -1,6 +1,10 @@
 html {
   background-color: black !important;
 }
+a {
+  color: #bbc8ff !important;
+}
+
 .main-image img {
   max-height: 35rem;
 }
@@ -26,6 +30,15 @@ html {
 }
 
 @media (min-width: 769px) {
+  .highlight-video {
+    padding: 1rem;
+    border: solid #bbc8ff;
+  }
+  .text-section {
+    margin-left: 3rem;
+    margin-right: 3rem;
+  }
+
   .image-section {
     margin-left: 0px;
     margin-right: 0px;

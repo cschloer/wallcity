@@ -2,7 +2,7 @@ html {
   background-color: black !important;
 }
 a {
-  color: #bbc8ff !important;
+  color: #ecbc36 !important;
 }
 
 .main-image img {
@@ -32,7 +32,7 @@ a {
 @media (min-width: 769px) {
   .highlight-video {
     padding: 1rem;
-    border: solid #bbc8ff;
+    border: solid #ecbc36;
   }
   .text-section {
     margin-left: 3rem;

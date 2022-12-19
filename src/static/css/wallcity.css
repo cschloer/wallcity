@@ -4,18 +4,8 @@ html {
 .main-image img {
   max-height: 35rem;
 }
-.main-image {
-  display: none !important;
-}
-.main-image.is-selected {
-  display: block !important;
-}
-
-.main-image-description {
-  display: none !important;
-}
-.main-image-description.is-selected {
-  display: block !important;
+.image-navigation {
+  min-width: 100px;
 }
 
 .wall-city-logo-vertical img {
@@ -47,6 +37,9 @@ html {
 .image-gallery-bar {
   display: flex;
   justify-content: space-between;
+  background-color: #dcdcdc17;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 @media screen and (min-width: 1408px) {
   .columns-is-fullhd {
@@ -80,8 +73,4 @@ html {
 .awn-toast {
   font-size: 1.25rem;
   width: 350px;
-}
-
-.image-navigation {
-  min-width: 80px;
 }

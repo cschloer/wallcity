@@ -5,6 +5,10 @@ a {
   color: #ecbc36 !important;
 }
 
+.footer {
+  background-color: black !important;
+}
+
 .main-image img {
   max-height: 35rem;
 }

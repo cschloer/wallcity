@@ -1,8 +1,19 @@
 let currentIndex = 0;
-function transitionImage(forward) {
-  const newIndex =
-    (currentIndex + (forward ? 1 : -1) + images.length) % images.length;
+function transitionImage(forward, random) {
+  let newIndex = currentIndex;
+  if (random) {
+    console.log("RANDOM");
+    const prevIndex = currentIndex;
+    while (prevIndex === newIndex) {
+      console.log(Math.floor(Math.random() * images.length));
+      newIndex = Math.floor(Math.random() * images.length);
+    }
+  } else {
+    newIndex =
+      (currentIndex + (forward ? 1 : -1) + images.length) % images.length;
+  }
 
+  console.log("TRANSITIONING", currentIndex);
   imageObj = images[newIndex];
   const image = document.getElementById("mainImage");
   image.src = imageObj.filepath;

@@ -39,56 +39,13 @@
 
   <body>
     <div class="container is-fluid">
+      <figure class="wall-city-logo-horizontal-wide has-text-centered">
+        <img class="" src="static/assets/WallCity_Logo_Wide.png">
+      </figure>
+      <figure class="wall-city-logo-horizontal-stacked has-text-centered">
+        <img class="" src="static/assets/WallCity_Logo_Stacked.png">
+      </figure>
       <div class="columns-is-fullhd">
-        <div class="column is-two-thirds-fullhd">
-          <figure class="wall-city-logo-horizontal has-text-centered">
-            <img class="" src="static/assets/logo_wall_city_inverted.jpg">
-          </figure>
-          <div class="pt-5">
-            <div class="is-flex mx-auto" style="width: fit-content;">
-              <figure class="wall-city-logo-vertical">
-                <img class="" src="static/assets/WallCityLogo_Vertical_White2.png">
-              </figure>
-              <div>
-                <figure
-                  class="image main-image"
-                  id="mainImageWrapper"
-                >
-                  <img id="mainImage" src="static/assets/team/2019-08-09-DM-Aachen.jpg">
-                </figure>
-              </div>
-            </div>
-          </div>
-          <div class="image-gallery-bar columns pt-2 mb-0">
-            <div class="has-text-white image-navigation has-text-left column is-narrow">
-              <span class="icon-text clickable" onclick="return transitionImage(false)">
-                <span class="icon">
-                  <i class="fas fa-arrow-left"></i>
-                </span>
-                <span>Previous</span>
-              </span>
-            </div>
-            <div class="has-text-white image-navigation has-text-right column is-narrow">
-              <span class="icon-text clickable" onclick="return transitionImage(true)">
-                <span>Next</span>
-                <span class="icon">
-                  <i class="fas fa-arrow-right"></i>
-                </span>
-              </span>
-            </div>
-          </div>
-          <div class="image-gallery-bar columns pb-2">
-            <div class="column py-0">
-              <div
-                id="imageDescription"
-                class="has-tooltip-bottom has-tooltip-multiline has-text-grey-lighter main-image-description has-text-centered"
-                data-tooltip="hinten: Sylwester, Basti, Julian, Leo, Steven, Caspar, Arne, Nick, Vlad, Phil, Hartley, Paul R. - vorne: Schuie, Clemens, Lucas, Ron, Tom, Joel, Thore, Taylor, Christian, Yannis, Marky"
-              >
-                Deutsche Meisterschaften 1. Liga in Aachen 08.09.2019
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="column">
           <section class="section px-0 pt-5 pb-5">
             <h1 class="title has-text-white">
@@ -101,6 +58,40 @@
               Wall City is a Berlin based Ultimate Frisbee Team. We play in Germany's first league and are always looking for new, motivated players. If you are interested in being part of this project drop us a line at: <strong onclick="return copyEmailToClipboard()" class="has-text-white clickable">info@wallcity.de</strong>. We are looking forward to meeting you.
             </h2>
           </section>
+        </div>
+        <div class="column image-section is-two-thirds-fullhd">
+          <div class="pt-5">
+            <div class="is-flex mx-auto" style="width: fit-content;">
+              <figure class="image main-image" id="mainImageWrapper">
+                <img id="mainImage" src="">
+              </figure>
+            </div>
+          </div>
+          <div class="image-gallery-bar columns pt-2 mb-0">
+            <div class="has-text-white image-navigation has-text-left column is-narrow ml-2 pb-1">
+              <span class="icon-text clickable" onclick="return transitionImage(true)">
+                <span class="icon">
+                  <i class="fas fa-left-long"></i>
+                </span>
+              </span>
+            </div>
+            <div class="has-text-white image-navigation has-text-right column is-narrow mr-2 pb-1">
+              <span class="icon-text clickable" onclick="return transitionImage(false)">
+                <span class="icon">
+                  <i class="fas fa-right-long"></i>
+                </span>
+              </span>
+            </div>
+          </div>
+          <div class="image-gallery-bar columns pb-2">
+            <div class="column pt-0">
+              <div
+                id="imageDescription"
+                class="has-tooltip-bottom has-tooltip-multiline has-text-grey-lighter main-image-description has-text-centered"
+              >
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <section class="section pt-5 px-2 bottom-section">
@@ -135,5 +126,10 @@
 
 
     </div>
+  <script>
+    currentIndex = -1;
+    transitionImage(true);
+
+  </script>
   </body>
 </html>

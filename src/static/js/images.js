@@ -7,7 +7,11 @@ function transitionImage(forward) {
   const image = document.getElementById("mainImage");
   image.src = imageObj.filepath;
   const description = document.getElementById("imageDescription");
-  description.setAttribute("data-tooltip", imageObj.tooltip);
+  if (!imageObj.tooltip) {
+    description.removeAttribute("data-tooltip");
+  } else {
+    description.setAttribute("data-tooltip", imageObj.tooltip);
+  }
   description.innerHTML = imageObj.caption;
 
   currentIndex = newIndex;
@@ -23,6 +27,23 @@ function transitionImage(forward) {
 }
 
 const images = [
+  {
+    // This image should always be first
+    imageDescriptionId: "imageDescription-18042022",
+    filepath: "static/assets/dancing_image.jpg",
+    tooltip: "",
+    caption: "",
+  },
+  {
+    filepath: "static/assets/team/2022_09_11.jpg",
+    tooltip: "",
+    caption: "DM2 2022 Champions",
+  },
+  {
+    filepath: "static/assets/team/19A_00096.jpg",
+    tooltip: "",
+    caption: "Elite Invite 2022 Champions",
+  },
   {
     imageDescriptionId: "imageDescription-08092019",
     filepath: "static/assets/team/2019-08-09-DM-Aachen.jpg",

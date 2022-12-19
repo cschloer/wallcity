@@ -5,7 +5,7 @@ html {
   max-height: 35rem;
 }
 .image-navigation {
-  min-width: 100px;
+  min-width: 120px;
 }
 
 .wall-city-logo-vertical img {
@@ -35,11 +35,12 @@ html {
 }
 
 .image-gallery-bar {
+  font-size: 1.25rem;
   display: flex;
   justify-content: space-between;
   background-color: #dcdcdc17;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 @media screen and (min-width: 1408px) {
   .columns-is-fullhd {

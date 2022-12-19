@@ -40,8 +40,6 @@ html {
   flex-wrap: wrap;
   justify-content: space-between;
   /*background-color: #dcdcdc17;*/
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
 }
 
 .image-gallery-bar .column {

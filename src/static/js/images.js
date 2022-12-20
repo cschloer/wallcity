@@ -43,12 +43,22 @@ const images = [
     caption: "",
   },
   {
+    filepath: "static/assets/team/R1-02821-010A.JPG",
+    tooltip: "",
+    caption: "EUCF 2022",
+  },
+  {
     filepath: "static/assets/team/2022_09_11.jpg",
     tooltip: "",
     caption: "DM2 2022 Champions",
   },
   {
-    filepath: "static/assets/team/19A_00096.jpg",
+    filepath: "static/assets/team/R1-08712-015A.JPG",
+    tooltip: "",
+    caption: "WUCC 2022",
+  },
+  {
+    filepath: "static/assets/team/18A_00097.jpg",
     tooltip: "",
     caption: "Elite Invite 2022 Champions",
   },

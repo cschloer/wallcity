@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "serverless-finch": "^4.0.0"
+  },
+  "devDependencies": {
+    "serverless-cloudfront-invalidate": "^1.12.2"
   }
 }

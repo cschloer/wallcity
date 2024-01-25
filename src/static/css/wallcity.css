@@ -64,6 +64,13 @@ a {
     display: none;
   }
 }
+@media (min-width: 1000px) {
+  .goaltimate {
+    background-image: url("/static/assets/goalty.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
 
 .columns-is-fullhd {
   display: block;

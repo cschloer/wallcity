@@ -1,4 +1,6 @@
 import os
+import pytz
+from string import punctuation
 import calendar
 import json
 import discord
@@ -17,17 +19,23 @@ stop_words = {
     "be",
     "but",
     "by",
+    "did",
+    "do",
+    "have",
     "for",
+    "I",
     "if",
     "in",
     "into",
     "is",
     "it",
+    "my",
     "no",
     "not",
     "of",
     "on",
     "or",
+    "so",
     "such",
     "that",
     "the",
@@ -37,6 +45,7 @@ stop_words = {
     "these",
     "they",
     "this",
+    "und",
     "to",
     "was",
     "will",
@@ -57,7 +66,11 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     try:
-        results = {"updated": str(datetime.today()), "since": str(since)}
+        today = datetime.utcnow().replace(tzinfo=pytz.utc)
+        results = {
+            "updated": str(today - timedelta(days=1)),
+            "since": str(since),
+        }
 
         # Get all user name and nick names into a dict
         user_names = {}
@@ -67,15 +80,26 @@ async def on_ready():
             user_names[member.id] = member.nick or member.display_name
 
         user_posts = {}
+        user_posts_weekly = []
         posts_by_months = {}
         timestamps = []
         dates = []
+        week_dates = []
         user_reactions_count = {}
         day_of_week_posts = {}
         total_emojis = 0
         popular_emojis = {}
         words = {}
-        async for m in ch.history(after=since, limit=None):
+
+        week_cutoff = today.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) - timedelta(days=today.weekday())
+
+        async for m in ch.history(
+            after=since,
+            before=today.replace(hour=0, minute=0, second=0, microsecond=0),
+            limit=None,
+        ):
             if len(m.attachments):
                 user = m.author
                 user_id = user.id
@@ -85,12 +109,37 @@ async def on_ready():
                 user_posts[user_id].append(m)
                 timestamp = calendar.timegm(m.created_at.utctimetuple())
                 timestamps.append(timestamp)
-                current_day = m.created_at.date()
 
                 # Add dates
+                current_day = m.created_at.date()
                 if not len(dates) or dates[-1][0] != str(current_day):
                     dates.append([str(current_day), 0])
                 dates[-1][1] += 1
+
+                # Add week dates (smooth curve)
+                if m.created_at < week_cutoff:
+                    current_middle_week_date = (
+                        m.created_at + timedelta(days=3 - m.created_at.weekday())
+                    ).date()
+                    if not len(week_dates) or week_dates[-1][0] != str(
+                        current_middle_week_date
+                    ):
+                        week_dates.append([str(current_middle_week_date), 0])
+                    week_dates[-1][1] += 1
+
+                # Add user weekly
+                current_week_date = (
+                    m.created_at - timedelta(days=m.created_at.weekday())
+                ).date()
+                if not len(user_posts_weekly) or user_posts_weekly[-1]["week"] != str(
+                    current_week_date
+                ):
+                    user_posts_weekly.append(
+                        {"week": str(current_week_date), "users": {}}
+                    )
+                if user_id not in user_posts_weekly[-1]["users"]:
+                    user_posts_weekly[-1]["users"][user_id] = 0
+                user_posts_weekly[-1]["users"][user_id] += 1
 
                 # Add day of week calculation
                 weekday = m.created_at.weekday()
@@ -100,10 +149,17 @@ async def on_ready():
 
                 # Add message content to word bubble
                 for word in m.content.split(" "):
-                    if word not in stop_words and not word.startswith("<@"):
-                        if word not in words:
-                            words[word] = 0
-                        words[word] += 1
+                    if not word.startswith("<@"):
+                        word = word.strip(punctuation)
+                        if word:
+                            ratio = sum(map(str.isupper, word)) / len(word)
+                            if ratio < 0.5:
+                                word = word.lower()
+
+                            if word not in stop_words:
+                                if word not in words:
+                                    words[word] = 0
+                                words[word] += 1
 
                 for reaction in m.reactions:
                     emoji = reaction.emoji
@@ -124,12 +180,17 @@ async def on_ready():
                         user_reactions_count[user.id] += 1
                     """
 
+        if not len(user_posts_weekly) or user_posts_weekly[-1]["week"] != str(
+            week_cutoff.date()
+        ):
+            user_posts_weekly.append({"week": str(week_cutoff.date()), "users": {}})
         # Add words
-        results["words"] = words
+        results["words"] = [[w, words[w]] for w in words.keys() if words[w] > 3]
 
         # Add timestamps
         results["timestamps"] = timestamps
         results["dates"] = dates
+        results["week_dates"] = week_dates
 
         # Sort emojis
         sorted_emojis = sorted(
@@ -149,6 +210,29 @@ async def on_ready():
         ]
 
         results["day_of_week"] = sorted_day_of_week
+
+        # Sort weekly users
+        sorted_user_posts_weekly = [
+            {
+                "week": w["week"],
+                "users": sorted(
+                    [(user_names[k], v) for k, v in w["users"].items()],
+                    key=lambda t: t[1],
+                    reverse=True,
+                ),
+            }
+            for w in user_posts_weekly
+        ]
+        results["user_posts_weekly"] = [
+            {
+                "week": w["week"],
+                "users": [u[0] for u in w["users"] if u[1] == w["users"][0][1]],
+                "count": w["users"][0][1] if len(w["users"]) else 0,
+            }
+            for w in sorted_user_posts_weekly[:-1]
+        ]
+
+        results["user_posts_weekly_standings"] = sorted_user_posts_weekly[-1]
 
         # Add top users
         sorted_user_posts = sorted(
@@ -190,6 +274,7 @@ async def on_ready():
             reverse=True,
         )
 
+        results["emojis"] = [e for e in sorted_emojis if e["count"] > 5]
         results["general_statistics"] = {
             "total_posts": len(timestamps),
             "top_emoji_giver": sorted_user_emojis[0]

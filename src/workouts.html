@@ -18,6 +18,9 @@
     <script src="static/external/wordcloud/wordcloud2.js"></script>
 
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+
   </head>
   <body>
     <div style="margin: 0.25rem;">
@@ -27,26 +30,85 @@
 
       <hr />
       <div class="is-flex" style="flex-wrap: wrap;">
-        <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem;" id="topUsers">
+
+        <!-- WEEKLY STANDINGS -->
+        <div class="box" style="flex: 6; margin: 1rem">
+          <div class="has-text-centered">
+            <h4 class="is-size-4 has-text-centered">Weekly Winners</h4>
+            <div id="weeklyWinners"></div>
+            <button class="button modal-open" target="weeklyWinnersModal">Show All</button>
+          </div>
         </div>
-        <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem;" id="generalStatistics">
+        <div class="modal" id="weeklyWinnersModal">
+          <div class="modal-background"></div>
+          <div class="modal-content">
+            <div class="has-background-white" style="padding: 1rem;">
+              <div class="has-text-centered">
+                <h4 class="is-size-4">Weekly Winners</h4> 
+                <div id="weeklyWinnersModalContent"></div>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+
+        <!-- LINE GRAPH WORKOUT POSTS -->
+        <div class="box" style="flex: 6; margin: 1rem">
+          <h4 class="is-size-4 has-text-centered">All Workout Posts</h4>
+          <canvas id="userPosts"></canvas>
+        </div>
+
+      </div>
+      <div class="is-flex" style="flex-wrap: wrap;">
+
+        <!-- OVERALL RANKINGS -->
+        <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+          <div class="has-text-centered">
+             <h4 class="is-size-4">Top Posters</h4> 
+             <div id="topUsers"></div>
+             <button class="button modal-open" target="topUsersModal">Show All</button>
+          </div>
+        </div>
+        <div class="modal" id="topUsersModal">
+          <div class="modal-background"></div>
+          <div class="modal-content">
+            <div class="has-background-white" style="padding: 1rem;">
+              <div class="has-text-centered">
+                <h4 class="is-size-4">Top Posters</h4> 
+                <div id="topUsersModalContent"></div>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+
+        <!-- STATISTICS -->
+        <div class="box has-text-centered" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+          <h4 class="is-size-4">Statistics</h4> 
+          <div id="generalStatistics"></div>
+        </div>
+
+        <!-- BAR GRAPH DAY OF WEEK -->
+        <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem; margin-bottom:  1.5rem;">
+          <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
+          <canvas id="dayOfWeek"></canvas>
         </div>
       </div>
-      <div class="box" style="flex: 12; margin: 1rem">
-        <h4 class="is-size-4 has-text-centered">All Workout Posts</h4>
-        <canvas id="userPosts"></canvas>
-      </div>
-      <div class="box" style="flex: 12; margin: 1rem">
-        <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
-        <canvas id="dayOfWeek"></canvas>
-      </div>
+
+      <!-- WORLD CLOUD -->
       <div class="box" style="flex: 12; margin: 1rem">
         <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="wordCloud"></canvas>
+      </div>
+
+      <!-- EMOJI CLOUD -->
+      <div class="box" style="flex: 12; margin: 1rem">
+        <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="emojiCloud"></canvas>
       </div>
     </div>
 
 
     <script>
+
       fetch("static/assets/workouts.json")
       .then(response => response.json())
       .then(workouts => {
@@ -55,17 +117,63 @@
         const updated  = new Date(workouts.updated)
         const diff = Math.floor((updated.getTime() - since.getTime() ) / ( 1000 * 60 * 60 * 24))
         const lastUpdated = document.getElementById('lastUpdated');
-              lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated on ${updated.toDateString()})`;
+              lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated through ${updated.toDateString()})`;
+
+        const weeklyWinnerRowItems = workouts.user_posts_weekly.reverse().map((u, i) => {
+           return `
+             <tr>
+               <td>${u["week"]}</td>
+               <td>${u.users.join(", ")}</td>
+               <td>${u.count}</td>
+             </tr>
+           `
+          }
+        )
+          // Weekly Winners 
+          const weeklyWinners = document.getElementById('weeklyWinners');
+          weeklyWinners.innerHTML = `
+    <table class="table is-fullwidth is-size-5">
+      <thead>
+        <tr>
+          <th>Week of</th>
+          <th>Name(s)</th>
+          <th># Workouts</th>
+        </tr>
+      </thead>
+      <tbody>
+       ${weeklyWinnerRowItems.filter((_, i) => i < 5).join(" ")}
+       </tbody>
+
+    </table>
+        `
+        // All Weekly Winners
+        const weeklyWinnersModal = $('#weeklyWinnersModalContent');
+        weeklyWinnersModal[0].innerHTML = `
+          <table class="table is-fullwidth is-size-5">
+            <thead>
+              <tr>
+                <th>Week of</th>
+                <th>Name(s)</th>
+                <th># Workouts</th>
+              </tr>
+            </thead>
+            <tbody>
+               ${weeklyWinnerRowItems.join(" ")}
+             </tbody>
+          </table>
+        `
+
 
         // General statistics 
         const generalStatistics = document.getElementById('generalStatistics');
         generalStatistics.innerHTML = `
      <div class="has-text-centered">
-       <h4 class="is-size-4">Statistics</h4> 
        <table class="table is-fullwidth is-size-5">
          <thead>
-     <tr><th></th><th></th></tr>
-
+           <tr>
+            <th></th>
+            <th></th>
+           </tr>
          </thead>
          <tbody>
            <tr>
@@ -104,49 +212,45 @@
      </div>
         `
 
+      const rowItems = workouts.top_users.map((u, i) => `
+       <tr>
+         <th>${i + 1}</th>
+         <td>${i === 0 ? '<i class="fas fa-crown mr-2" style="color: #ecbc36;"></i>' : ""}${u.name}</td>
+         <td>${u.num_posts}</td>
+       </tr>
+     `)
         // Top users
         const topUsers = document.getElementById('topUsers');
         topUsers.innerHTML = `
-<div class="has-text-centered">
-     <h4 class="is-size-4">Top Posters</h4> 
-  <table class="table is-fullwidth is-size-5">
-    <thead>
-      <tr>
-        <th><abbr title="Position">Pos</abbr></th>
-        <th>Name</th>
-        <th># Workouts</th>
-      </tr>
-    </thead>
-    <tbody>
-     <tr>
-       <th>1</th>
-       <td><i class="fas fa-crown mr-2" style="color: #ecbc36;"></i>${workouts.top_users[0].name}</td>
-       <td>${workouts.top_users[0].num_posts}</td>
-     </tr>
-     <tr>
-       <td>2</td>
-       <td>${workouts.top_users[1].name}</td>
-       <td>${workouts.top_users[1].num_posts}</td>
-     </tr>
-     <tr>
-       <td>3</td>
-       <td>${workouts.top_users[2].name}</td>
-       <td>${workouts.top_users[2].num_posts}</td>
-     </tr>
-     <tr>
-       <td>4</td>
-       <td>${workouts.top_users[3].name}</td>
-       <td>${workouts.top_users[3].num_posts}</td>
-     </tr>
-     <tr>
-       <td>5</td>
-       <td>${workouts.top_users[4].name}</td>
-       <td>${workouts.top_users[4].num_posts}</td>
-     </tr>
-     </tbody>
+          <table class="table is-fullwidth is-size-5">
+            <thead>
+              <tr>
+                <th><abbr title="Position">Pos</abbr></th>
+                <th>Name</th>
+                <th># Workouts</th>
+              </tr>
+            </thead>
+            <tbody>
+             ${rowItems.filter((_, i) => i < 5).join(" ")}
+             </tbody>
 
-  </table>
-</div>
+          </table>
+        `
+        // All Top Users
+        const allUsersModal = $('#topUsersModalContent');
+        allUsersModal[0].innerHTML = `
+          <table class="table is-fullwidth is-size-5">
+            <thead>
+              <tr>
+                <th><abbr title="Position">Pos</abbr></th>
+                <th>Name</th>
+                <th># Workouts</th>
+              </tr>
+            </thead>
+            <tbody>
+               ${rowItems.join(" ")}
+             </tbody>
+          </table>
         `
 
       // User Posts
@@ -157,27 +261,33 @@
         {
           type: 'line',
           data: {
-            datasets: [{
-              data: workouts.dates.map(d => {
-                return { x: d[0], y: d[1] };
-              }),
-              borderColor: 'rgb(75, 192, 192, 0.8)',
-              tension: 0.1,
-            }],
+            datasets: [
+              {
+                data: workouts.week_dates.map(d => {
+                  return { x: d[0], y: d[1] / 7 };
+                }),
+                borderColor: 'rgb(75, 192, 192, 1.0)',
+                backgroundColor: 'rgb(75, 192, 192, 1.0)',
+                tension: 0.1,
+                label: "Daily Average (Week)",
+              },
+              {
+                data: workouts.dates.map(d => {
+                  return { x: d[0], y: d[1] };
+                }),
+                borderColor: 'rgba(236, 188, 54, 0.3)',
+                backgroundColor: 'rgba(236, 188, 54, 0.3)',
+                tension: 0.1,
+                label: "Daily Sum",
+              },
+            ],
           },
           options: {
-              plugins: {
-                legend: {
-                  display: false,
-
-                }
-              },
               scales: {
                   x: {
                       type: 'time',
                       time: {
-                        unit: 'day',
-                        round: 'day',
+                        unit: 'week',
                         displayFormats: {
                           quarter: 'MMM YYYY'
                         },
@@ -213,21 +323,43 @@
           }
         });
 
-      // Word Cloud
-      new Promise(async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        WordCloud(
-            document.getElementById('wordCloud'),
-            {
-              list: Object.keys(workouts.words).map((w) => [ w, workouts.words[w] ] ).filter(w => w[1] > 3),
-              gridSize: 16,
-              weightFactor: 3,
-            },
-        );
-      })
+        // Word Cloud
+        new Promise(async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          WordCloud(
+              document.getElementById('wordCloud'),
+              {
+                list: workouts.words.map((w) => [ w[0], w[1] ] ).filter(w => w[1] > 3),
+                gridSize: 16,
+                weightFactor: 3,
+              },
+          );
+        })
+        // Emoji Cloud
+        new Promise(async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          WordCloud(
+              document.getElementById('emojiCloud'),
+              {
+                list: workouts.emojis.map((e) => [e.emoji, e.count] ).filter(w => !w[0].startsWith("https://") && w[1] > 5),
+                gridSize: 16,
+                weightFactor: 2,
+              },
+          );
+        })
+
+
+        // Handle modals
+        $('.modal-open').on("click", function() {
+          $(`#${$(this).attr("target")}`).addClass("is-active")
+        });
+        $('.modal-close, .modal-background').on("click", function() {
+          $(this).closest(".modal").removeClass("is-active")
+        });
 
       });
     </script>
+
   </body>
 
 

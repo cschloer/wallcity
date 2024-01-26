@@ -1,0 +1,234 @@
+<html>
+  <head>
+    <title>Wall City Workouts</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="static/assets/WallCity_favicon3.png" />
+
+    <link href="static/external/bulma/bulma.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/779125478c.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js"></script>
+    <script src="static/external/wordcloud/wordcloud2.js"></script>
+
+
+  </head>
+  <body>
+    <div style="margin: 0.25rem;">
+      <h3 class="is-size-3 has-text-centered">Wall City Workouts 2023/2024</h3>
+      <h5 class="is-size-7 has-text-grey has-text-centered" id="lastUpdated"></h3>
+
+
+      <hr />
+      <div class="is-flex" style="flex-wrap: wrap;">
+        <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem;" id="topUsers">
+        </div>
+        <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem;" id="generalStatistics">
+        </div>
+      </div>
+      <div class="box" style="flex: 12; margin: 1rem">
+        <h4 class="is-size-4 has-text-centered">All Workout Posts</h4>
+        <canvas id="userPosts"></canvas>
+      </div>
+      <div class="box" style="flex: 12; margin: 1rem">
+        <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
+        <canvas id="dayOfWeek"></canvas>
+      </div>
+      <div class="box" style="flex: 12; margin: 1rem">
+        <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="wordCloud"></canvas>
+      </div>
+    </div>
+
+
+    <script>
+      fetch("static/assets/workouts.json")
+      .then(response => response.json())
+      .then(workouts => {
+        // Last updated
+        const since  = new Date(workouts.since)
+        const updated  = new Date(workouts.updated)
+        const diff = Math.floor((updated.getTime() - since.getTime() ) / ( 1000 * 60 * 60 * 24))
+        const lastUpdated = document.getElementById('lastUpdated');
+              lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated on ${updated.toDateString()})`;
+
+        // General statistics 
+        const generalStatistics = document.getElementById('generalStatistics');
+        generalStatistics.innerHTML = `
+     <div class="has-text-centered">
+       <h4 class="is-size-4">Statistics</h4> 
+       <table class="table is-fullwidth is-size-5">
+         <thead>
+     <tr><th></th><th></th></tr>
+
+         </thead>
+         <tbody>
+           <tr>
+             <th>Total Posts:</th>
+             <td>${workouts.general_statistics.total_posts}</td>
+           </tr>
+           <tr>
+             <th>Average Posts Per Day:</th>
+             <td>${Math.round((workouts.general_statistics.total_posts / diff) * 100) / 100}</td>
+           </tr>
+           <tr>
+             <th>Longest Daily Streak:</th>
+               <td>
+                  &#11088;
+                  ${workouts.general_statistics.longest_streak[0].join(', ')}
+                  (${workouts.general_statistics.longest_streak[1]})
+               </td>
+           </tr>
+           <tr>
+             <th>Total Emojis:</th>
+             <td>${workouts.general_statistics.total_emojis}</td>
+           </tr>
+           <tr>
+             <th>Top Emoji:</th>
+             <td style="display: flex; align-items: center;">
+                ${workouts.general_statistics.top_emoji.is_url ?
+                  `<img src="${workouts.general_statistics.top_emoji.emoji}">` :
+                  workouts.general_statistics.top_emoji.emoji
+                }
+                &nbsp
+               (${workouts.general_statistics.top_emoji.count})
+             </td>
+           </tr>
+         </tbody>
+       </table>
+     </div>
+        `
+
+        // Top users
+        const topUsers = document.getElementById('topUsers');
+        topUsers.innerHTML = `
+<div class="has-text-centered">
+     <h4 class="is-size-4">Top Posters</h4> 
+  <table class="table is-fullwidth is-size-5">
+    <thead>
+      <tr>
+        <th><abbr title="Position">Pos</abbr></th>
+        <th>Name</th>
+        <th># Workouts</th>
+      </tr>
+    </thead>
+    <tbody>
+     <tr>
+       <th>1</th>
+       <td><i class="fas fa-crown mr-2" style="color: #ecbc36;"></i>${workouts.top_users[0].name}</td>
+       <td>${workouts.top_users[0].num_posts}</td>
+     </tr>
+     <tr>
+       <td>2</td>
+       <td>${workouts.top_users[1].name}</td>
+       <td>${workouts.top_users[1].num_posts}</td>
+     </tr>
+     <tr>
+       <td>3</td>
+       <td>${workouts.top_users[2].name}</td>
+       <td>${workouts.top_users[2].num_posts}</td>
+     </tr>
+     <tr>
+       <td>4</td>
+       <td>${workouts.top_users[3].name}</td>
+       <td>${workouts.top_users[3].num_posts}</td>
+     </tr>
+     <tr>
+       <td>5</td>
+       <td>${workouts.top_users[4].name}</td>
+       <td>${workouts.top_users[4].num_posts}</td>
+     </tr>
+     </tbody>
+
+  </table>
+</div>
+        `
+
+      // User Posts
+      const userPosts = document.getElementById('userPosts');
+
+      new Chart(
+        userPosts,
+        {
+          type: 'line',
+          data: {
+            datasets: [{
+              data: workouts.dates.map(d => {
+                return { x: d[0], y: d[1] };
+              }),
+              borderColor: 'rgb(75, 192, 192, 0.8)',
+              tension: 0.1,
+            }],
+          },
+          options: {
+              plugins: {
+                legend: {
+                  display: false,
+
+                }
+              },
+              scales: {
+                  x: {
+                      type: 'time',
+                      time: {
+                        unit: 'day',
+                        round: 'day',
+                        displayFormats: {
+                          quarter: 'MMM YYYY'
+                        },
+                        tooltipFormat: "MMM dd, yyyy"
+                      },
+                  }
+              }
+          }
+        });
+
+      // Day of Week
+      const dayOfWeek = document.getElementById('dayOfWeek');
+
+
+      new Chart(
+        dayOfWeek,
+        {
+          type: 'bar',
+          data: {
+            labels: workouts.day_of_week.map(d => d[0]),
+            datasets: [{
+              backgroundColor: 'rgba(236, 188, 54, 0.8)',
+              data: workouts.day_of_week.map(d => d[1]),
+            }],
+          },
+          options: {
+              plugins: {
+                legend: {
+                  display: false,
+
+                }
+              },
+          }
+        });
+
+      // Word Cloud
+      new Promise(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        WordCloud(
+            document.getElementById('wordCloud'),
+            {
+              list: Object.keys(workouts.words).map((w) => [ w, workouts.words[w] ] ).filter(w => w[1] > 3),
+              gridSize: 16,
+              weightFactor: 3,
+            },
+        );
+      })
+
+      });
+    </script>
+  </body>
+
+
+</html>

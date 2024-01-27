@@ -169,8 +169,8 @@ async def on_ready():
                         }
                     popular_emojis[emoji_id]["count"] += reaction.count
                     total_emojis += reaction.count
-                    """
                     # Commented out for now because it takes too long
+                    """
                     async for user in reaction.users():
                         if user.id not in user_reactions_count:
                             user_reactions_count[user.id] = 0
@@ -222,14 +222,22 @@ async def on_ready():
             }
             for w in user_posts_monthly
         ]
-        results["user_posts_monthly"] = [
-            {
-                "month": w["month"],
-                "users": [u[0] for u in w["users"] if u[1] == w["users"][0][1]],
-                "count": w["users"][0][1] if len(w["users"]) else 0,
-            }
-            for w in sorted_user_posts_monthly[:-1]
-        ]
+        user_posts_monthly_final = []
+        for w in sorted_user_posts_monthly[:-1]:
+            month_dict = {"month": w["month"]}
+            placement = []
+            for u in w["users"]:
+                if not len(placement) or placement[-1]["count"] != u[1]:
+                    # Only get the top 3
+                    if len(placement) >= 3:
+                        break
+                    placement.append({"count": u[1], "users": []})
+                placement[-1]["users"].append(u[0])
+
+            month_dict["placement"] = placement
+            user_posts_monthly_final.append(month_dict)
+        results["user_posts_monthly"] = user_posts_monthly_final
+
         user_posts_monthly_standings = {
             "month": sorted_user_posts_monthly[-1]["month"],
             "users": [],

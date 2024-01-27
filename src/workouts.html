@@ -36,8 +36,8 @@
           <div class="has-text-centered">
             <h4 class="is-size-4 has-text-centered monthly-standings-header">Monthly Standings</h4>
             <div id="monthlyWinners"></div>
-            <button class="button modal-open" target="monthlyStandingsModal">Show Full Standings</button>
-            <button class="button modal-open" target="monthlyWinnersModal">Show Previous Winners</button>
+            <button style="margin: 0.25rem;" class="button modal-open" target="monthlyStandingsModal">Show Full Standings</button>
+            <button style="margin: 0.25rem;" class="button modal-open" target="monthlyWinnersModal">Show Previous Winners</button>
           </div>
         </div>
         <div class="modal" id="monthlyWinnersModal">
@@ -132,19 +132,10 @@
         const lastUpdated = document.getElementById('lastUpdated');
               lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated through ${updated.toDateString()})`;
 
-        const monthlyWinnerRowItems = workouts.user_posts_monthly.reverse().map((u, i) => {
-           return `
-             <tr>
-               <td>${u["month"]}</td>
-               <td>${u.users.join(", ")}</td>
-               <td>${u.count}</td>
-             </tr>
-           `
-          }
-        )
         const monthlyStandings = workouts.user_posts_monthly_standings["users"].map((u, i) => {
            return `
              <tr>
+               <th>${i+1}</th>
                <td>${u.users.join(", ")}</td>
                <td>${u.count}</td>
              </tr>
@@ -158,6 +149,7 @@
     <table class="table is-fullwidth is-size-5">
       <thead>
         <tr>
+          <th><abbr title="Position">Pos</abbr></th>
           <th>Name(s)</th>
           <th># Workouts</th>
         </tr>
@@ -174,6 +166,7 @@
           <table class="table is-fullwidth is-size-5">
             <thead>
               <tr>
+                <th><abbr title="Position">Pos</abbr></th>
                 <th>Name(s)</th>
                 <th># Workouts</th>
               </tr>
@@ -186,19 +179,41 @@
 
         // All Monthly Winners
         const monthlyWinnersModal = $('#monthlyWinnersModalContent');
+        const medal = ["&#129351;", "&#129352;", "&#129353;"]
         monthlyWinnersModal[0].innerHTML = `
-          <table class="table is-fullwidth is-size-5">
-            <thead>
-              <tr>
-                <th>Month of</th>
-                <th>Name(s)</th>
-                <th># Workouts</th>
-              </tr>
-            </thead>
-            <tbody>
-               ${monthlyWinnerRowItems.join(" ")}
-             </tbody>
-          </table>
+          <div style="margin-top: 1rem;">
+            ${workouts.user_posts_monthly.reverse().map((m) => {
+              return `
+               <hr />
+               <div style="margin-bottom: 1rem;">
+                  <h4 class="is-size-4">${m["month"]}</h4>
+                  <table class="table is-fullwidth is-size-5">
+                    <thead>
+                      <tr>
+                        <th><abbr title="Position">Pos</abbr></th>
+                        <th>Name(s)</th>
+                        <th># Workouts</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${m.placement.map((p, i) => {
+                        return `
+                         <tr>
+                           <td>${medal[i]}</td>
+                           <td>${p.users.join(", ")}</td>
+                           <td>${p.count}</td>
+                         </tr>
+                        `
+
+                      }).join(" ")}
+                     </tbody>
+                  </table>
+                </div>
+
+
+              `
+            }).join(" ")}
+          </div>
         `
 
 
@@ -245,6 +260,16 @@
                (${workouts.general_statistics.top_emoji.count})
              </td>
            </tr>
+          ${workouts.top_emoji_giver ? `
+           <tr>
+             <th>Top Emojier:</th>
+             <td style="display: flex; align-items: center;">
+                ${workouts.top_emoji_giver[0]}
+                &nbsp
+               (${workouts.top_emoji_giver[1]})
+             </td>
+           </tr>
+          ` : ""}
          </tbody>
        </table>
      </div>

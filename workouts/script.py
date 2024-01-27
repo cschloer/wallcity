@@ -80,7 +80,7 @@ async def on_ready():
             user_names[member.id] = member.nick or member.display_name
 
         user_posts = {}
-        user_posts_weekly = []
+        user_posts_monthly = []
         posts_by_months = {}
         timestamps = []
         dates = []
@@ -128,18 +128,15 @@ async def on_ready():
                     week_dates[-1][1] += 1
 
                 # Add user weekly
-                current_week_date = (
-                    m.created_at - timedelta(days=m.created_at.weekday())
-                ).date()
-                if not len(user_posts_weekly) or user_posts_weekly[-1]["week"] != str(
-                    current_week_date
+                current_month = m.created_at.strftime("%B")
+                if (
+                    not len(user_posts_monthly)
+                    or user_posts_monthly[-1]["month"] != current_month
                 ):
-                    user_posts_weekly.append(
-                        {"week": str(current_week_date), "users": {}}
-                    )
-                if user_id not in user_posts_weekly[-1]["users"]:
-                    user_posts_weekly[-1]["users"][user_id] = 0
-                user_posts_weekly[-1]["users"][user_id] += 1
+                    user_posts_monthly.append({"month": current_month, "users": {}})
+                if user_id not in user_posts_monthly[-1]["users"]:
+                    user_posts_monthly[-1]["users"][user_id] = 0
+                user_posts_monthly[-1]["users"][user_id] += 1
 
                 # Add day of week calculation
                 weekday = m.created_at.weekday()
@@ -180,10 +177,12 @@ async def on_ready():
                         user_reactions_count[user.id] += 1
                     """
 
-        if not len(user_posts_weekly) or user_posts_weekly[-1]["week"] != str(
-            week_cutoff.date()
-        ):
-            user_posts_weekly.append({"week": str(week_cutoff.date()), "users": {}})
+        if not len(user_posts_monthly) or user_posts_monthly[-1][
+            "month"
+        ] != week_cutoff.strftime("%B"):
+            user_posts_monthly.append(
+                {"month": week_cutoff.strftime("%B"), "users": {}}
+            )
         # Add words
         results["words"] = [[w, words[w]] for w in words.keys() if words[w] > 3]
 
@@ -212,27 +211,36 @@ async def on_ready():
         results["day_of_week"] = sorted_day_of_week
 
         # Sort weekly users
-        sorted_user_posts_weekly = [
+        sorted_user_posts_monthly = [
             {
-                "week": w["week"],
+                "month": w["month"],
                 "users": sorted(
                     [(user_names[k], v) for k, v in w["users"].items()],
                     key=lambda t: t[1],
                     reverse=True,
                 ),
             }
-            for w in user_posts_weekly
+            for w in user_posts_monthly
         ]
-        results["user_posts_weekly"] = [
+        results["user_posts_monthly"] = [
             {
-                "week": w["week"],
+                "month": w["month"],
                 "users": [u[0] for u in w["users"] if u[1] == w["users"][0][1]],
                 "count": w["users"][0][1] if len(w["users"]) else 0,
             }
-            for w in sorted_user_posts_weekly[:-1]
+            for w in sorted_user_posts_monthly[:-1]
         ]
+        user_posts_monthly_standings = {
+            "month": sorted_user_posts_monthly[-1]["month"],
+            "users": [],
+        }
+        for u in sorted_user_posts_monthly[-1]["users"]:
+            users = user_posts_monthly_standings["users"]
+            if not len(users) or users[-1]["count"] != u[1]:
+                users.append({"count": u[1], "users": []})
+            users[-1]["users"].append(u[0])
 
-        results["user_posts_weekly_standings"] = sorted_user_posts_weekly[-1]
+        results["user_posts_monthly_standings"] = user_posts_monthly_standings
 
         # Add top users
         sorted_user_posts = sorted(

@@ -31,21 +31,34 @@
       <hr />
       <div class="is-flex" style="flex-wrap: wrap;">
 
-        <!-- WEEKLY STANDINGS -->
+        <!-- MONTHLY STANDINGS -->
         <div class="box" style="flex: 6; margin: 1rem">
           <div class="has-text-centered">
-            <h4 class="is-size-4 has-text-centered">Weekly Winners</h4>
-            <div id="weeklyWinners"></div>
-            <button class="button modal-open" target="weeklyWinnersModal">Show All</button>
+            <h4 class="is-size-4 has-text-centered monthly-standings-header">Monthly Standings</h4>
+            <div id="monthlyWinners"></div>
+            <button class="button modal-open" target="monthlyStandingsModal">Show Full Standings</button>
+            <button class="button modal-open" target="monthlyWinnersModal">Show Previous Winners</button>
           </div>
         </div>
-        <div class="modal" id="weeklyWinnersModal">
+        <div class="modal" id="monthlyWinnersModal">
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="has-background-white" style="padding: 1rem;">
               <div class="has-text-centered">
-                <h4 class="is-size-4">Weekly Winners</h4> 
-                <div id="weeklyWinnersModalContent"></div>
+                <h4 class="is-size-4">Previous Monthly Winners</h4> 
+                <div id="monthlyWinnersModalContent"></div>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+        <div class="modal" id="monthlyStandingsModal">
+          <div class="modal-background"></div>
+          <div class="modal-content">
+            <div class="has-background-white" style="padding: 1rem;">
+              <div class="has-text-centered">
+                <h4 class="is-size-4 monthly-standings-header">Monthly Standings</h4> 
+                <div id="monthlyStandingsModalContent"></div>
               </div>
             </div>
           </div>
@@ -119,46 +132,71 @@
         const lastUpdated = document.getElementById('lastUpdated');
               lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated through ${updated.toDateString()})`;
 
-        const weeklyWinnerRowItems = workouts.user_posts_weekly.reverse().map((u, i) => {
+        const monthlyWinnerRowItems = workouts.user_posts_monthly.reverse().map((u, i) => {
            return `
              <tr>
-               <td>${u["week"]}</td>
+               <td>${u["month"]}</td>
                <td>${u.users.join(", ")}</td>
                <td>${u.count}</td>
              </tr>
            `
           }
         )
-          // Weekly Winners 
-          const weeklyWinners = document.getElementById('weeklyWinners');
-          weeklyWinners.innerHTML = `
+        const monthlyStandings = workouts.user_posts_monthly_standings["users"].map((u, i) => {
+           return `
+             <tr>
+               <td>${u.users.join(", ")}</td>
+               <td>${u.count}</td>
+             </tr>
+           `
+          }
+        )
+        $(".monthly-standings-header").html(`${workouts.user_posts_monthly_standings["month"]} Standings`);
+          // Monthly Standings 
+          const monthlyWinners = document.getElementById('monthlyWinners');
+          monthlyWinners.innerHTML = `
     <table class="table is-fullwidth is-size-5">
       <thead>
         <tr>
-          <th>Week of</th>
           <th>Name(s)</th>
           <th># Workouts</th>
         </tr>
       </thead>
       <tbody>
-       ${weeklyWinnerRowItems.filter((_, i) => i < 5).join(" ")}
+       ${monthlyStandings.filter((_, i) => i < 5).join(" ")}
        </tbody>
 
     </table>
         `
-        // All Weekly Winners
-        const weeklyWinnersModal = $('#weeklyWinnersModalContent');
-        weeklyWinnersModal[0].innerHTML = `
+        // All Monthly Standings
+        const monthlyStandingsModal = $('#monthlyStandingsModalContent');
+        monthlyStandingsModal[0].innerHTML = `
           <table class="table is-fullwidth is-size-5">
             <thead>
               <tr>
-                <th>Week of</th>
                 <th>Name(s)</th>
                 <th># Workouts</th>
               </tr>
             </thead>
             <tbody>
-               ${weeklyWinnerRowItems.join(" ")}
+               ${monthlyStandings.join(" ")}
+             </tbody>
+          </table>
+        `
+
+        // All Monthly Winners
+        const monthlyWinnersModal = $('#monthlyWinnersModalContent');
+        monthlyWinnersModal[0].innerHTML = `
+          <table class="table is-fullwidth is-size-5">
+            <thead>
+              <tr>
+                <th>Month of</th>
+                <th>Name(s)</th>
+                <th># Workouts</th>
+              </tr>
+            </thead>
+            <tbody>
+               ${monthlyWinnerRowItems.join(" ")}
              </tbody>
           </table>
         `

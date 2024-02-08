@@ -94,6 +94,7 @@ async def on_ready():
         week_cutoff = today.replace(
             hour=0, minute=0, second=0, microsecond=0
         ) - timedelta(days=today.weekday())
+        print(today)
 
         async for m in ch.history(
             after=since,
@@ -106,6 +107,7 @@ async def on_ready():
                 if user_id not in user_posts:
                     user_posts[user_id] = []
 
+                # Add users to
                 user_posts[user_id].append(m)
                 timestamp = calendar.timegm(m.created_at.utctimetuple())
                 timestamps.append(timestamp)
@@ -160,6 +162,23 @@ async def on_ready():
 
                 for reaction in m.reactions:
                     emoji = reaction.emoji
+                    # Handle the repeat one emoji as a way to be part of a workout
+                    if emoji == "🔂" and m.created_at.year >= 2024:
+                        async for user in reaction.users():
+                            if user.id != user_id:
+                                # Increase everything
+                                week_dates[-1][1] += 1
+                                dates[-1][1] += 1
+                                if user.id not in user_posts_monthly[-1]["users"]:
+                                    user_posts_monthly[-1]["users"][user.id] = 0
+                                user_posts_monthly[-1]["users"][user.id] += 1
+
+                                day_of_week_posts[weekday] += 1
+                                if user.id not in user_posts:
+                                    user_posts[user.id] = []
+                                user_posts[user.id].append(m)
+                                timestamps.append(timestamp)
+
                     emoji_id = emoji if isinstance(emoji, str) else emoji.id
                     if emoji_id not in popular_emojis:
                         popular_emojis[emoji_id] = {
@@ -177,12 +196,14 @@ async def on_ready():
                         user_reactions_count[user.id] += 1
                     """
 
+        """
         if not len(user_posts_monthly) or user_posts_monthly[-1][
             "month"
         ] != week_cutoff.strftime("%B"):
             user_posts_monthly.append(
                 {"month": week_cutoff.strftime("%B"), "users": {}}
             )
+        """
         # Add words
         results["words"] = [[w, words[w]] for w in words.keys() if words[w] > 3]
 

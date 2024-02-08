@@ -26,96 +26,99 @@
     <div style="margin: 0.25rem;">
       <h3 class="is-size-3 has-text-centered">Wall City Workouts 2023/2024</h3>
       <h5 class="is-size-7 has-text-grey has-text-centered" id="lastUpdated"></h3>
+      <span class="loader bulma-loader-mixin" style="font-size: 5rem; margin-left: auto; margin-right: auto; margin-top: 3rem;"></span>
 
 
-      <hr />
-      <div class="is-flex" style="flex-wrap: wrap;">
+      <div id="mainContent" style="display: none;">
+        <hr />
+        <div class="is-flex" style="flex-wrap: wrap;">
 
-        <!-- MONTHLY STANDINGS -->
-        <div class="box" style="flex: 6; margin: 1rem">
-          <div class="has-text-centered">
-            <h4 class="is-size-4 has-text-centered monthly-standings-header">Monthly Standings</h4>
-            <div id="monthlyWinners"></div>
-            <button style="margin: 0.25rem;" class="button modal-open" target="monthlyStandingsModal">Show Full Standings</button>
-            <button style="margin: 0.25rem;" class="button modal-open" target="monthlyWinnersModal">Show Previous Winners</button>
-          </div>
-        </div>
-        <div class="modal" id="monthlyWinnersModal">
-          <div class="modal-background"></div>
-          <div class="modal-content">
-            <div class="has-background-white" style="padding: 1rem;">
-              <div class="has-text-centered">
-                <h4 class="is-size-4">Previous Monthly Winners</h4> 
-                <div id="monthlyWinnersModalContent"></div>
-              </div>
+          <!-- MONTHLY STANDINGS -->
+          <div class="box" style="flex: 6; margin: 1rem">
+            <div class="has-text-centered">
+              <h4 class="is-size-4 has-text-centered monthly-standings-header">Monthly Standings</h4>
+              <div id="monthlyWinners"></div>
+              <button style="margin: 0.25rem;" class="button modal-open" target="monthlyStandingsModal">Show Full Standings</button>
+              <button style="margin: 0.25rem;" class="button modal-open" target="monthlyWinnersModal">Show Previous Winners</button>
             </div>
           </div>
-          <button class="modal-close is-large" aria-label="close"></button>
-        </div>
-        <div class="modal" id="monthlyStandingsModal">
-          <div class="modal-background"></div>
-          <div class="modal-content">
-            <div class="has-background-white" style="padding: 1rem;">
-              <div class="has-text-centered">
-                <h4 class="is-size-4 monthly-standings-header">Monthly Standings</h4> 
-                <div id="monthlyStandingsModalContent"></div>
+          <div class="modal" id="monthlyWinnersModal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="has-background-white" style="padding: 1rem;">
+                <div class="has-text-centered">
+                  <h4 class="is-size-4">Previous Monthly Winners</h4> 
+                  <div id="monthlyWinnersModalContent"></div>
+                </div>
               </div>
             </div>
+            <button class="modal-close is-large" aria-label="close"></button>
           </div>
-          <button class="modal-close is-large" aria-label="close"></button>
-        </div>
-
-        <!-- LINE GRAPH WORKOUT POSTS -->
-        <div class="box" style="flex: 6; margin: 1rem">
-          <h4 class="is-size-4 has-text-centered">All Workout Posts</h4>
-          <canvas id="userPosts"></canvas>
-        </div>
-
-      </div>
-      <div class="is-flex" style="flex-wrap: wrap;">
-
-        <!-- OVERALL RANKINGS -->
-        <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
-          <div class="has-text-centered">
-             <h4 class="is-size-4">Top Posters</h4> 
-             <div id="topUsers"></div>
-             <button class="button modal-open" target="topUsersModal">Show All</button>
-          </div>
-        </div>
-        <div class="modal" id="topUsersModal">
-          <div class="modal-background"></div>
-          <div class="modal-content">
-            <div class="has-background-white" style="padding: 1rem;">
-              <div class="has-text-centered">
-                <h4 class="is-size-4">Top Posters</h4> 
-                <div id="topUsersModalContent"></div>
+          <div class="modal" id="monthlyStandingsModal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="has-background-white" style="padding: 1rem;">
+                <div class="has-text-centered">
+                  <h4 class="is-size-4 monthly-standings-header">Monthly Standings</h4> 
+                  <div id="monthlyStandingsModalContent"></div>
+                </div>
               </div>
             </div>
+            <button class="modal-close is-large" aria-label="close"></button>
           </div>
-          <button class="modal-close is-large" aria-label="close"></button>
+
+          <!-- LINE GRAPH WORKOUT POSTS -->
+          <div class="box" style="flex: 6; margin: 1rem">
+            <h4 class="is-size-4 has-text-centered">All Workout Posts</h4>
+            <canvas id="userPosts"></canvas>
+          </div>
+
+        </div>
+        <div class="is-flex" style="flex-wrap: wrap;">
+
+          <!-- OVERALL RANKINGS -->
+          <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+            <div class="has-text-centered">
+               <h4 class="is-size-4">Top Posters</h4> 
+               <div id="topUsers"></div>
+               <button class="button modal-open" target="topUsersModal">Show All</button>
+            </div>
+          </div>
+          <div class="modal" id="topUsersModal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="has-background-white" style="padding: 1rem;">
+                <div class="has-text-centered">
+                  <h4 class="is-size-4">Top Posters</h4> 
+                  <div id="topUsersModalContent"></div>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+
+          <!-- STATISTICS -->
+          <div class="box has-text-centered" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+            <h4 class="is-size-4">Statistics</h4> 
+            <div id="generalStatistics"></div>
+          </div>
+
+          <!-- BAR GRAPH DAY OF WEEK -->
+          <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem; margin-bottom:  1.5rem;">
+            <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
+            <canvas id="dayOfWeek"></canvas>
+          </div>
         </div>
 
-        <!-- STATISTICS -->
-        <div class="box has-text-centered" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
-          <h4 class="is-size-4">Statistics</h4> 
-          <div id="generalStatistics"></div>
+        <!-- WORLD CLOUD -->
+        <div class="box" style="flex: 12; margin: 1rem">
+          <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="wordCloud"></canvas>
         </div>
 
-        <!-- BAR GRAPH DAY OF WEEK -->
-        <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem; margin-bottom:  1.5rem;">
-          <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
-          <canvas id="dayOfWeek"></canvas>
+        <!-- EMOJI CLOUD -->
+        <div class="box" style="flex: 12; margin: 1rem">
+          <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="emojiCloud"></canvas>
         </div>
-      </div>
-
-      <!-- WORLD CLOUD -->
-      <div class="box" style="flex: 12; margin: 1rem">
-        <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="wordCloud"></canvas>
-      </div>
-
-      <!-- EMOJI CLOUD -->
-      <div class="box" style="flex: 12; margin: 1rem">
-        <canvas width="2048" height="1536" style="width: 100%; height: auto;" id="emojiCloud"></canvas>
       </div>
     </div>
 
@@ -419,6 +422,8 @@
         $('.modal-close, .modal-background').on("click", function() {
           $(this).closest(".modal").removeClass("is-active")
         });
+        $('.loader').hide();
+        $('#mainContent').show();
 
       });
     </script>

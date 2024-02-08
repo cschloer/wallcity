@@ -2,12 +2,22 @@ service: wallcity
 plugins:
   - serverless-finch
   - serverless-cloudfront-invalidate
+  - serverless-python-requirements
 frameworkVersion: ">=2.24.0"
 
 provider:
   name: aws
-  profile: tischtennis
+  profile: wallcity
   region: us-east-1
+  runtime: python3.9
+  environment:
+    API_TOKEN: ${API_TOKEN} 
+functions:
+  workoutsHandler:
+    handler: handler.run
+    events:
+      # Invoke Lambda function every day
+      - schedule: cron(15 1 * * ? *) 
 
 
 custom:

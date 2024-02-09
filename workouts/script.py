@@ -53,6 +53,8 @@ stop_words = {
     "with",
 }
 
+participation_emoji = "🔂"
+
 # since = datetime.today() - timedelta(days=30 * 6)
 since = datetime(2023, 10, 2)
 
@@ -162,8 +164,8 @@ async def on_ready():
 
                 for reaction in m.reactions:
                     emoji = reaction.emoji
-                    # Handle the repeat one emoji as a way to be part of a workout
-                    if emoji == "🔂" and m.created_at.year >= 2024:
+                    # Handle the participation emoji as a way to be part of a workout
+                    if emoji == participation_emoji and m.created_at.year >= 2024:
                         async for user in reaction.users():
                             if user.id != user_id:
                                 # Increase everything
@@ -179,22 +181,23 @@ async def on_ready():
                                 user_posts[user.id].append(m)
                                 timestamps.append(timestamp)
 
-                    emoji_id = emoji if isinstance(emoji, str) else emoji.id
-                    if emoji_id not in popular_emojis:
-                        popular_emojis[emoji_id] = {
-                            "count": 0,
-                            "emoji": emoji if isinstance(emoji, str) else emoji.url,
-                            "is_url": not isinstance(emoji, str),
-                        }
-                    popular_emojis[emoji_id]["count"] += reaction.count
-                    total_emojis += reaction.count
-                    # Commented out for now because it takes too long
-                    """
-                    async for user in reaction.users():
-                        if user.id not in user_reactions_count:
-                            user_reactions_count[user.id] = 0
-                        user_reactions_count[user.id] += 1
-                    """
+                    else:
+                        emoji_id = emoji if isinstance(emoji, str) else emoji.id
+                        if emoji_id not in popular_emojis:
+                            popular_emojis[emoji_id] = {
+                                "count": 0,
+                                "emoji": emoji if isinstance(emoji, str) else emoji.url,
+                                "is_url": not isinstance(emoji, str),
+                            }
+                        popular_emojis[emoji_id]["count"] += reaction.count
+                        total_emojis += reaction.count
+                        # Commented out for now because it takes too long
+                        """
+                        async for user in reaction.users():
+                            if user.id not in user_reactions_count:
+                                user_reactions_count[user.id] = 0
+                            user_reactions_count[user.id] += 1
+                        """
 
         """
         if not len(user_posts_monthly) or user_posts_monthly[-1][

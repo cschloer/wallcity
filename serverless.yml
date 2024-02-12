@@ -43,7 +43,7 @@ functions:
     handler: handler.run
     events:
       # Invoke Lambda function every day
-      - schedule: cron(15 1 * * ? *) 
+      - schedule: cron(15 2 * * ? *) 
 
 
 custom:

@@ -33,6 +33,43 @@
         <hr />
         <div class="is-flex" style="flex-wrap: wrap;">
 
+          <!-- MONTHLY STANDINGS REPS -->
+          <div class="box" style="flex: 6; margin: 1rem; border: 1px solid #ecbc36;">
+            <div class="has-text-centered">
+              <h4 
+                title="Calculated using the keywords 'reps', 'throwing' 'throws', 'tossing', and 'werfen'."
+                class="is-size-4 has-text-centered monthly-throwing-standings-header"
+               >Monthly Throwing Standings</h4>
+              <div id="monthlyThrowingWinners"></div>
+              <button style="margin: 0.25rem;" class="button modal-open" target="monthlyThrowingStandingsModal">Show Full Throwing Standings</button>
+              <button style="margin: 0.25rem;" class="button modal-open" target="monthlyThrowingWinnersModal">Show Previous Throwing Winners</button>
+            </div>
+          </div>
+          <div class="modal" id="monthlyThrowingWinnersModal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="has-background-white" style="padding: 1rem;">
+                <div class="has-text-centered">
+                  <h4 class="is-size-4">Previous Monthly Throwing Winners</h4> 
+                  <div id="monthlyThrowingWinnersModalContent"></div>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+          <div class="modal" id="monthlyThrowingStandingsModal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="has-background-white" style="padding: 1rem;">
+                <div class="has-text-centered">
+                  <h4 class="is-size-4 monthly-throwing-standings-header">Monthly Throwing Standings</h4> 
+                  <div id="monthlyThrowingStandingsModalContent"></div>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+
           <!-- MONTHLY STANDINGS -->
           <div class="box" style="flex: 6; margin: 1rem">
             <div class="has-text-centered">
@@ -66,6 +103,8 @@
             </div>
             <button class="modal-close is-large" aria-label="close"></button>
           </div>
+        </div>
+        <div class="is-flex" style="flex-wrap: wrap;">
 
           <!-- LINE GRAPH WORKOUT POSTS -->
           <div class="box" style="flex: 6; margin: 1rem">
@@ -73,11 +112,9 @@
             <canvas id="userPosts"></canvas>
           </div>
 
-        </div>
-        <div class="is-flex" style="flex-wrap: wrap;">
 
           <!-- OVERALL RANKINGS -->
-          <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+          <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem;">
             <div class="has-text-centered">
                <h4 class="is-size-4">Top Posters</h4> 
                <div id="topUsers"></div>
@@ -96,15 +133,17 @@
             </div>
             <button class="modal-close is-large" aria-label="close"></button>
           </div>
+        </div>
+        <div class="is-flex" style="flex-wrap: wrap;">
 
           <!-- STATISTICS -->
-          <div class="box has-text-centered" style="flex: 4; margin-left: 1rem; margin-right: 1rem;">
+          <div class="box has-text-centered" style="flex: 6; margin-left: 1rem; margin-right: 1rem;">
             <h4 class="is-size-4">Statistics</h4> 
             <div id="generalStatistics"></div>
           </div>
 
           <!-- BAR GRAPH DAY OF WEEK -->
-          <div class="box" style="flex: 4; margin-left: 1rem; margin-right: 1rem; margin-bottom:  1.5rem;">
+          <div class="box" style="flex: 6; margin-left: 1rem; margin-right: 1rem; margin-bottom:  1.5rem;">
             <h4 class="is-size-4 has-text-centered">Workouts By Day of Week</h4>
             <canvas id="dayOfWeek"></canvas>
           </div>
@@ -134,7 +173,94 @@
         const diff = Math.floor((updated.getTime() - since.getTime() ) / ( 1000 * 60 * 60 * 24))
         const lastUpdated = document.getElementById('lastUpdated');
               lastUpdated.innerHTML = `Using data from the last ${diff} days (starting ${since.toDateString()}, updated through ${updated.toDateString()})`;
+        const medal = ["&#129351;", "&#129352;", "&#129353;"]
 
+        // THROWING
+        const monthlyThrowingStandings = workouts.user_reps_monthly_standings["users"].map((u, i) => {
+           return `
+             <tr>
+               <th>${i+1}</th>
+               <td>${u.users.join(", ")}</td>
+               <td>${u.count}</td>
+             </tr>
+           `
+          }
+        )
+        $(".monthly-throwing-standings-header").html(`${workouts.user_reps_monthly_standings["month"]} Throwing`);
+          // Monthly Throwing Standings 
+          const monthlyThrowingWinners = document.getElementById('monthlyThrowingWinners');
+          monthlyThrowingWinners.innerHTML = `
+    <table class="table is-fullwidth is-size-5">
+      <thead>
+        <tr>
+          <th><abbr title="Position">Pos</abbr></th>
+          <th>Name(s)</th>
+          <th># Throwing Sessions</th>
+        </tr>
+      </thead>
+      <tbody>
+       ${monthlyThrowingStandings.filter((_, i) => i < 5).join(" ")}
+       </tbody>
+
+    </table>
+        `
+        // All Monthly Throwing Standings
+        const monthlyThrowingStandingsModal = $('#monthlyThrowingStandingsModalContent');
+        monthlyThrowingStandingsModal[0].innerHTML = `
+          <table class="table is-fullwidth is-size-5">
+            <thead>
+              <tr>
+                <th><abbr title="Position">Pos</abbr></th>
+                <th>Name(s)</th>
+                <th># Throwing Sessions</th>
+              </tr>
+            </thead>
+            <tbody>
+               ${monthlyThrowingStandings.join(" ")}
+             </tbody>
+          </table>
+        `
+
+        // All Monthly Throwing Winners
+        const monthlyThrowingWinnersModal = $('#monthlyThrowingWinnersModalContent');
+        monthlyThrowingWinnersModal[0].innerHTML = `
+          <div style="margin-top: 1rem;">
+            ${workouts.user_reps_monthly.reverse().map((m) => {
+              return `
+               <hr />
+               <div style="margin-bottom: 1rem;">
+                  <h4 class="is-size-4">${m["month"]}</h4>
+                  <table class="table is-fullwidth is-size-5">
+                    <thead>
+                      <tr>
+                        <th><abbr title="Position">Pos</abbr></th>
+                        <th>Name(s)</th>
+                        <th># Throwing Sessions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${m.placement.map((p, i) => {
+                        return `
+                         <tr>
+                           <td>${medal[i]}</td>
+                           <td>${p.users.join(", ")}</td>
+                           <td>${p.count}</td>
+                         </tr>
+                        `
+
+                      }).join(" ")}
+                     </tbody>
+                  </table>
+                </div>
+
+
+              `
+            }).join(" ")}
+          </div>
+        `
+
+
+        // POSTS
         const monthlyStandings = workouts.user_posts_monthly_standings["users"].map((u, i) => {
            return `
              <tr>
@@ -182,7 +308,6 @@
 
         // All Monthly Winners
         const monthlyWinnersModal = $('#monthlyWinnersModalContent');
-        const medal = ["&#129351;", "&#129352;", "&#129353;"]
         monthlyWinnersModal[0].innerHTML = `
           <div style="margin-top: 1rem;">
             ${workouts.user_posts_monthly.reverse().map((m) => {

@@ -53,10 +53,13 @@ stop_words = {
     "with",
 }
 
+rep_words = {"reps", "throwing" "throws", "tossing", "werfen"}
+
 participation_emoji = "🔂"
 
 # since = datetime.today() - timedelta(days=30 * 6)
-since = datetime(2023, 10, 2)
+# since = datetime(2025, 2, 20)
+since = datetime(2024, 10, 1)
 
 
 intents = discord.Intents.all()
@@ -81,7 +84,9 @@ async def run_script():
         user_names[member.id] = member.nick or member.display_name
 
     user_posts = {}
+    user_reps = {}
     user_posts_monthly = []
+    user_reps_monthly = []
     posts_by_months = {}
     timestamps = []
     dates = []
@@ -107,6 +112,7 @@ async def run_script():
             user_id = user.id
             if user_id not in user_posts:
                 user_posts[user_id] = []
+                user_reps[user_id] = 0
 
             # Add users to
             user_posts[user_id].append(m)
@@ -130,22 +136,7 @@ async def run_script():
                     week_dates.append([str(current_middle_week_date), 0])
                 week_dates[-1][1] += 1
 
-            # Add user weekly
-            current_month = m.created_at.strftime("%B")
-            if (
-                not len(user_posts_monthly)
-                or user_posts_monthly[-1]["month"] != current_month
-            ):
-                user_posts_monthly.append({"month": current_month, "users": {}})
-            if user_id not in user_posts_monthly[-1]["users"]:
-                user_posts_monthly[-1]["users"][user_id] = 0
-            user_posts_monthly[-1]["users"][user_id] += 1
-
-            # Add day of week calculation
-            weekday = m.created_at.weekday()
-            if weekday not in day_of_week_posts:
-                day_of_week_posts[weekday] = 0
-            day_of_week_posts[weekday] += 1
+            is_reps = False
 
             # Add message content to word bubble
             for word in m.content.split(" "):
@@ -160,6 +151,31 @@ async def run_script():
                             if word not in words:
                                 words[word] = 0
                             words[word] += 1
+                        if word in rep_words:
+                            is_reps = True
+            if is_reps:
+                user_reps[user_id] += 1
+
+            # Add user monthly
+            current_month = m.created_at.strftime("%B")
+            if (
+                not len(user_posts_monthly)
+                or user_posts_monthly[-1]["month"] != current_month
+            ):
+                user_posts_monthly.append({"month": current_month, "users": {}})
+                user_reps_monthly.append({"month": current_month, "users": {}})
+            if user_id not in user_posts_monthly[-1]["users"]:
+                user_posts_monthly[-1]["users"][user_id] = 0
+                user_reps_monthly[-1]["users"][user_id] = 0
+            user_posts_monthly[-1]["users"][user_id] += 1
+            if is_reps:
+                user_reps_monthly[-1]["users"][user_id] += 1
+
+            # Add day of week calculation
+            weekday = m.created_at.weekday()
+            if weekday not in day_of_week_posts:
+                day_of_week_posts[weekday] = 0
+            day_of_week_posts[weekday] += 1
 
             for reaction in m.reactions:
                 emoji = reaction.emoji
@@ -172,12 +188,18 @@ async def run_script():
                             dates[-1][1] += 1
                             if user.id not in user_posts_monthly[-1]["users"]:
                                 user_posts_monthly[-1]["users"][user.id] = 0
+                                user_reps_monthly[-1]["users"][user.id] = 0
                             user_posts_monthly[-1]["users"][user.id] += 1
+                            if is_reps:
+                                user_reps_monthly[-1]["users"][user.id] += 1
 
                             day_of_week_posts[weekday] += 1
                             if user.id not in user_posts:
                                 user_posts[user.id] = []
+                                user_reps[user.id] = 0
                             user_posts[user.id].append(m)
+                            if is_reps:
+                                user_reps[user.id] += 1
                             timestamps.append(timestamp)
 
                 else:
@@ -233,7 +255,7 @@ async def run_script():
 
     results["day_of_week"] = sorted_day_of_week
 
-    # Sort weekly users
+    # Sort monthly users
     sorted_user_posts_monthly = [
         {
             "month": w["month"],
@@ -245,6 +267,7 @@ async def run_script():
         }
         for w in user_posts_monthly
     ]
+
     user_posts_monthly_final = []
     for w in sorted_user_posts_monthly[:-1]:
         month_dict = {"month": w["month"]}
@@ -272,6 +295,46 @@ async def run_script():
         users[-1]["users"].append(u[0])
 
     results["user_posts_monthly_standings"] = user_posts_monthly_standings
+
+    sorted_user_reps_monthly = [
+        {
+            "month": w["month"],
+            "users": sorted(
+                [(user_names[k], v) for k, v in w["users"].items()],
+                key=lambda t: t[1],
+                reverse=True,
+            ),
+        }
+        for w in user_reps_monthly
+    ]
+
+    user_reps_monthly_final = []
+    for w in sorted_user_reps_monthly[:-1]:
+        month_dict = {"month": w["month"]}
+        placement = []
+        for u in w["users"]:
+            if not len(placement) or placement[-1]["count"] != u[1]:
+                # Only get the top 3
+                if len(placement) >= 3:
+                    break
+                placement.append({"count": u[1], "users": []})
+            placement[-1]["users"].append(u[0])
+
+        month_dict["placement"] = placement
+        user_reps_monthly_final.append(month_dict)
+    results["user_reps_monthly"] = user_reps_monthly_final
+
+    user_reps_monthly_standings = {
+        "month": sorted_user_reps_monthly[-1]["month"],
+        "users": [],
+    }
+    for u in sorted_user_reps_monthly[-1]["users"]:
+        users = user_reps_monthly_standings["users"]
+        if not len(users) or users[-1]["count"] != u[1]:
+            users.append({"count": u[1], "users": []})
+        users[-1]["users"].append(u[0])
+
+    results["user_reps_monthly_standings"] = user_reps_monthly_standings
 
     # Add top users
     sorted_user_posts = sorted(
@@ -316,9 +379,9 @@ async def run_script():
     results["emojis"] = [e for e in sorted_emojis if e["count"] > 5]
     results["general_statistics"] = {
         "total_posts": len(timestamps),
-        "top_emoji_giver": sorted_user_emojis[0]
-        if len(sorted_user_emojis) > 0
-        else None,
+        "top_emoji_giver": (
+            sorted_user_emojis[0] if len(sorted_user_emojis) > 0 else None
+        ),
         "total_emojis": total_emojis,
         "longest_streak": longest_streak,
         "top_emoji": sorted_emojis[0],
@@ -329,8 +392,9 @@ async def run_script():
 @client.event
 async def on_ready():
     try:
-        results = run_script()
+        results = await run_script()
         with open("../src/static/assets/workouts.json", "w") as fp:
+            print(results)
             json.dump(results, fp)
 
     except Exception as e:
@@ -351,5 +415,5 @@ async def on_message(message):
 """
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     client.run(API_TOKEN)
